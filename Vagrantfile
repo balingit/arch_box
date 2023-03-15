@@ -78,7 +78,7 @@ Vagrant.configure("2") do |config|
     chmod 600 ~vagrant/.ssh/id_rsa
     pacman -Syu --noconfirm
     pacman -S --noconfirm ansible-core git
-    ansible-galaxy collection install -r /vagrant/archbuild/requirements.yml -p /usr/share/ansible/collections
+    ansible-galaxy collection install -r /development/archbuild/requirements.yml -p /usr/share/ansible/collections
   SHELL
 
   config.vm.provision "ansible_local" do |ansible|
