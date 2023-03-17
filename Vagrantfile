@@ -13,7 +13,6 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "archlinux/archlinux"
-  config.disksize.size = "40GB"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -44,21 +43,22 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "~/Development", "/development", mount_options: ["dmode=775,fmode=664"]
-  config.vm.synced_folder "D:", "/mnt/d"
-  config.vm.synced_folder "E:", "/mnt/e", disabled: true
+  config.vm.synced_folder "~/Development", "/development", mount_options: ["dmode=755,fmode=644"]
+  config.vm.synced_folder "D:", "/mnt/d", mount_options: ["dmode=755,fmode=644"]
+  config.vm.synced_folder "E:", "/mnt/e", mount_options: ["dmode=755,fmode=644"], disabled: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
+  config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
   #   vb.memory = "1024"
-  # end
+    vb.name = "default_arch_box"
+  end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -67,8 +67,8 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
-
   config.vm.provision "file", source: "~/.ssh/id_rsa", destination: ".ssh/"
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: ".ssh/"
 
   config.vm.provision "shell", inline: <<-SHELL
     ln -sf /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
@@ -77,13 +77,6 @@ Vagrant.configure("2") do |config|
     echo "LANG=en_NZ.UTF-8" > /etc/locale.conf
     locale-gen
     chmod 600 ~vagrant/.ssh/id_rsa
-    pacman -Syu --noconfirm
-    pacman -S --noconfirm ansible-core git
-    ansible-galaxy collection install -r /development/archbuild/requirements.yml -p /usr/share/ansible/collections
   SHELL
 
-  config.vm.provision "ansible_local" do |ansible|
-    ansible.provisioning_path = "/development/archbuild"
-    ansible.playbook = "vagrant.yml"
-  end
 end
